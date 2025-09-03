@@ -22,6 +22,26 @@ With one command, you get a ready-to-code environment including virtualenv, conf
 
 ---
 
+## ⚡ Quick Start
+
+The fastest way to bootstrap a new project:
+
+```powershell
+cd MyProject
+py -m reposmith.main
+```
+
+This will:
+- create `.venv/`
+- add `requirements.txt`, `app.py`, `.gitignore`, `LICENSE`, `.vscode/`
+- configure everything automatically with defaults.
+
+👉 Optional flags:
+- `--ci create` → add GitHub Actions workflow
+- `--author "YourName"` → set your name in LICENSE
+
+---
+
 ## 📦 Installation
 
 ### From source (local dev)
