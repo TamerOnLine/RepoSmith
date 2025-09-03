@@ -28,16 +28,19 @@ except ImportError:
     from license_utils import create_license
 
 
+from pathlib import Path
+import os
+
 def resolve_root(args) -> Path:
-    here = Path(__file__).resolve().parent
     if args.root:
-        return (here / args.root).resolve()
+        return Path(args.root).resolve()     # <-- الآن يفسر . بالنسبة لـ CWD
     if args.up is not None:
-        root = here
+        root = Path(os.getcwd())
         for _ in range(args.up):
             root = root.parent
         return root.resolve()
-    return here
+    return Path(os.getcwd()).resolve()
+
 
 
 def main():
