@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "reposmith"
-version = "0.1.0"
+name = "reposmith-tol"
+version = "0.1.1"
 description = "Portable project bootstrapper (venv, gitignore, license, vscode, etc.)"
 readme = "README.md"
 requires-python = ">=3.12"
