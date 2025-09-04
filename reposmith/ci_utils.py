@@ -1,9 +1,7 @@
 # reposmith/ci_utils.py
 from __future__ import annotations
-
 import textwrap
 from pathlib import Path
-
 from .core.fs import write_file
 
 def ensure_github_actions_workflow(
@@ -11,22 +9,12 @@ def ensure_github_actions_workflow(
     path: str = ".github/workflows/test-main.yml",
     *,
     py: str = "3.12",
-    program: str = "app.py",  # Retained for backward compatibility – no longer used
+    program: str = "app.py",  # للإبقاء على التوافق الخلفي فقط (غير مستخدم الآن)
     force: bool = False,
 ) -> str:
     """
-    Generate a GitHub Actions workflow that runs unit tests (unittest).
-
-    Args:
-        root_dir (Path): The root directory where the workflow file will be created.
-        path (str, optional): Relative path to the GitHub Actions workflow YAML file.
-            Defaults to ".github/workflows/test-main.yml".
-        py (str, optional): Python version to be used in the workflow. Defaults to "3.12".
-        program (str, optional): Unused. Retained for backward compatibility. Defaults to "app.py".
-        force (bool, optional): If True, overwrite the workflow file if it exists.
-
-    Returns:
-        str: The path of the written workflow file as a string.
+    Generate a GitHub Actions workflow that runs unit tests (unittest)
+    and forces CI to import the local repo code (not a possibly installed package).
     """
     wf_path = Path(root_dir) / path
     wf_path.parent.mkdir(parents=True, exist_ok=True)
@@ -52,11 +40,11 @@ def ensure_github_actions_workflow(
 
           - name: Run unit tests
             run: |
-              if [ -d tests ]; then
-                python -m unittest discover -s tests -v
-              else
-                echo "No tests directory found. Skipping."
-              fi
+              # Ensure CI uses local repo code for imports and subprocesses
+              export PYTHONPATH="$GITHUB_WORKSPACE:$PYTHONPATH"
+              # (Optional) remove any installed package that might shadow local code
+              pip uninstall -y reposmith-tol || true
+              python -m unittest discover -s tests -v
     """).lstrip()
 
     return write_file(wf_path, yml, force=force, backup=True)
