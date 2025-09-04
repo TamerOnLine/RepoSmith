@@ -90,3 +90,14 @@ python -m unittest discover -s tests -v
 ## 🛡 License
 This project is licensed under the [MIT License](LICENSE).  
 © 2025 TamerOnLine
+
+---
+
+---
+
+## 💬 Support
+
+- 🐛 **Report Issues:** [GitHub Issues](https://github.com/liebemama/RepoSmith/issues)  
+- 💡 **Feature Requests:** [GitHub Issues](https://github.com/liebemama/RepoSmith/issues) (اختر نوع *Feature Request*)  
+- 💖 **Sponsor:** [GitHub Sponsors](https://github.com/sponsors/liebemama)  
+- 📧 **Contact:** (info@tameronline.com)

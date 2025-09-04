@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "reposmith-tol"
-version = "0.2.2"
+version = "0.2.3"
 description = "Portable project bootstrapper (venv, gitignore, license, vscode, etc.)"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -23,13 +23,12 @@ classifiers = [
   "Topic :: Utilities",
 ]
 
-
-
 [project.urls]
 Homepage = "https://github.com/liebemama/RepoSmith"
 Repository = "https://github.com/liebemama/RepoSmith"
 Issues = "https://github.com/liebemama/RepoSmith/issues"
-License = "https://github.com/liebemama/RepoSmith/blob/main/LICENSE"
+Sponsor = "https://github.com/sponsors/liebemama"
+Support = "mailto:info@tameronline.com"
 
 
 [project.scripts]
