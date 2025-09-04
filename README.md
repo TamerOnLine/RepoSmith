@@ -2,8 +2,9 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/reposmith-tol?style=flat-square)](https://pypi.org/project/reposmith-tol/)
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg?style=flat-square)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](https://github.com/liebemama/RepoSmith/blob/main/LICENSE)
 [![Sponsor](https://img.shields.io/badge/Sponsor-💖-pink?style=flat-square)](https://github.com/sponsors/liebemama)
+
 
 **RepoSmith** is a **portable Python project bootstrapper** — a zero-dependency CLI & library that helps you spin up new projects instantly.  
 With one command, you get a ready-to-code environment: virtualenv, config files, VS Code setup, `.gitignore`, LICENSE, and optional CI.
@@ -88,10 +89,8 @@ python -m unittest discover -s tests -v
 ---
 
 ## 🛡 License
-This project is licensed under the [MIT License](LICENSE).  
+This project is licensed under the [MIT License](https://github.com/liebemama/RepoSmith/blob/main/LICENSE).  
 © 2025 TamerOnLine
-
----
 
 ---
 
