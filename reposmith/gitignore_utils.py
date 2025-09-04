@@ -1,3 +1,4 @@
+from .core.fs import write_file
 from pathlib import Path
 
 PYTHON_GITIGNORE = """# =========================
@@ -201,12 +202,43 @@ PRESETS = {
     "django": DJANGO_GITIGNORE,
 }
 
-def create_gitignore(root_dir, preset: str = "python") -> None:
-    print("\n[9] Checking .gitignore")
+from pathlib import Path
+
+
+def create_gitignore(root_dir, preset: str = "python", *, force: bool = False) -> str:
+    """
+    Create or update a .gitignore file safely.
+
+    This function writes a .gitignore file in the given root directory
+    based on predefined presets. It will not overwrite an existing file
+    unless `force=True` is specified. If overwriting occurs, a backup
+    (`.bak`) file is created automatically. The writing process is
+    performed atomically to prevent data corruption.
+
+    Args:
+        root_dir (str or Path): The target directory where the .gitignore
+            file should be created.
+        preset (str, optional): The preset to use for the .gitignore
+            content. Defaults to "python".
+        force (bool, optional): If True, overwrite the existing file.
+            Defaults to False.
+
+    Returns:
+        str: A status string describing the result. Possible values include:
+            - "exists": The file already exists and was not overwritten.
+            - Other states as defined by `write_file`.
+
+    Notes:
+        - Requires `PRESETS`, `PYTHON_GITIGNORE`, and `write_file` to be
+          defined in the surrounding scope.
+    """
     path = Path(root_dir) / ".gitignore"
-    if path.exists():
-        print(".gitignore already exists.")
-        return
     content = PRESETS.get(preset.lower(), PYTHON_GITIGNORE)
-    path.write_text(content, encoding="utf-8")
-    print(f".gitignore created with preset: {preset}")
+
+    state = write_file(path, content, force=force, backup=True)
+    if state == "exists":
+        print(".gitignore already exists. Use --force to overwrite.")
+    else:
+        print(f".gitignore created/updated with preset: {preset}")
+    return state
+

@@ -1,60 +1,122 @@
+# reposmith/vscode_utils.py
+from __future__ import annotations
+
 import os
 import json
 from pathlib import Path
 
-def create_vscode_files(root_dir: Path, venv_dir: str, main_file: str = "app.py") -> None:
-    print("\n[8] Creating VS Code files: settings, launch, workspace")
+from .core.fs import write_file
 
-    ws_dir = Path(root_dir)
-    vscode_dir = ws_dir / ".vscode"
-    settings_path = vscode_dir / "settings.json"
-    launch_path = vscode_dir / "launch.json"
-    workspace_path = ws_dir / "project.code-workspace"
 
-    os.makedirs(vscode_dir, exist_ok=True)
+import os
+from pathlib import Path
 
-    interp = (
-        os.path.join(venv_dir, "Scripts", "python.exe")
-        if os.name == "nt"
-        else os.path.join(venv_dir, "bin", "python")
-    )
+
+def _venv_python_path(venv_dir: Path) -> str:
+    """
+    Return the Python interpreter path for Visual Studio Code.
+
+    This function determines the appropriate Python interpreter path 
+    based on the presence of a virtual environment (venv). 
+
+    Args:
+        venv_dir (Path): The directory of the virtual environment.
+
+    Returns:
+        str: The path to the Python interpreter. 
+             - If the venv exists, its interpreter is used.
+             - Otherwise, falls back to 'python.exe' (Windows) 
+               or 'python3' (Linux/Mac).
+    """
+    if os.name == "nt":
+        candidate = Path(venv_dir) / "Scripts" / "python.exe"
+        return str(candidate) if candidate.exists() else "python.exe"
+    else:
+        candidate = Path(venv_dir) / "bin" / "python3"
+        return str(candidate) if candidate.exists() else "python3"
+
+
+
+def create_vscode_files(
+    root_dir: Path,
+    venv_dir: Path,
+    *,
+    main_file: str = "main.py",
+    force: bool = False,
+) -> None:
+    """
+    Safely create/update VS Code configuration files for a project.
+
+    This function generates the following:
+        - .vscode/settings.json: Sets Python interpreter from the virtual environment.
+        - .vscode/launch.json: Configures debugging for the main script.
+        - project.code-workspace: Creates a simple workspace file.
+
+    Args:
+        root_dir (Path): Project root directory where files will be created.
+        venv_dir (Path): Path to the virtual environment.
+        main_file (str, optional): Name of the main file to run. Defaults to "main.py".
+        force (bool, optional): Overwrite existing files if True. Defaults to False.
+
+    Returns:
+        None
+    """
+    root = Path(root_dir)
+    vscode = root / ".vscode"
+    vscode.mkdir(parents=True, exist_ok=True)
+
+    py_path = _venv_python_path(venv_dir)
 
     # settings.json
     settings = {
-        "python.defaultInterpreterPath": interp,
-        "python.terminal.activateEnvironment": True,
-        "editor.formatOnSave": True,
-        "python.formatting.provider": "black",
+        "python.defaultInterpreterPath": py_path,
+        "python.analysis.autoImportCompletions": True,
+        "terminal.integrated.env.windows": {
+            # Placeholder for environment variables if needed
+        },
     }
-    with open(settings_path, "w", encoding="utf-8") as f:
-        json.dump(settings, f, indent=2)
+    settings_path = vscode / "settings.json"
+    write_file(
+        settings_path,
+        json.dumps(settings, indent=2),
+        force=force,
+        backup=True,
+    )
 
-    from pathlib import Path as _P
-    _main_name = _P(main_file).name
+    # launch.json
     launch = {
         "version": "0.2.0",
         "configurations": [
             {
-                "name": f"Run {_main_name}",
-                "type": "debugpy",
+                "name": f"Python: {main_file}",
+                "type": "python",
                 "request": "launch",
-                "program": f"${{workspaceFolder}}/{_main_name}",
-                "cwd": "${workspaceFolder}",
+                "program": main_file,
                 "console": "integratedTerminal",
-                "justMyCode": True,
-                "envFile": "${workspaceFolder}/.env",
             }
         ],
     }
-    with open(launch_path, "w", encoding="utf-8") as f:
-        json.dump(launch, f, indent=2)
+    launch_path = vscode / "launch.json"
+    write_file(
+        launch_path,
+        json.dumps(launch, indent=2),
+        force=force,
+        backup=True,
+    )
 
-    # project.code-workspace
+    # workspace (optional but useful)
     workspace = {
         "folders": [{"path": "."}],
-        "settings": {"python.defaultInterpreterPath": interp},
+        "settings": {"python.defaultInterpreterPath": py_path},
     }
-    with open(workspace_path, "w", encoding="utf-8") as f:
-        json.dump(workspace, f, indent=2)
+    ws_path = root / "project.code-workspace"
+    write_file(
+        ws_path,
+        json.dumps(workspace, indent=2),
+        force=force,
+        backup=True,
+    )
 
-    print("VS Code files updated: settings.json, launch.json, project.code-workspace")
+    print(
+        "VS Code files updated: settings.json, launch.json, project.code-workspace"
+    )

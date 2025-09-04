@@ -1,17 +1,15 @@
 [build-system]
-requires = ["setuptools>=77.0.0", "wheel"]
+requires = ["setuptools>=77.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "reposmith-tol"
-version = "0.1.2"
+version = "0.2.0"
 description = "Portable project bootstrapper (venv, gitignore, license, vscode, etc.)"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "TamerOnLine" }]
 keywords = ["bootstrap", "venv", "gitignore", "license", "vscode", "scaffold", "cli"]
-dependencies = []
-
 
 license = "MIT"
 license-files = ["LICENSE"]
@@ -24,6 +22,8 @@ classifiers = [
   "Topic :: Software Development :: Build Tools",
   "Topic :: Utilities",
 ]
+
+
 
 [project.urls]
 Homepage = "https://github.com/liebemama/RepoSmith"

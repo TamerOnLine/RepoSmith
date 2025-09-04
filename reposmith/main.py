@@ -1,148 +1,196 @@
-import os
+"""RepoSmith CLI entry point.
+
+This module provides the command-line interface for bootstrapping a new
+Python project with optional virtual environment, VS Code settings,
+.gitignore, LICENSE, and CI workflow files.
+"""
+
 import argparse
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
-# Ensure package init for -m runs
-pkg_dir = Path(__file__).resolve().parent
-init_file = pkg_dir / "__init__.py"
-if not init_file.exists():
-    init_file.write_text("# Auto-created to mark package\n", encoding="utf-8")
-    print(f"[init] Created {init_file}")
-
-# Flexible imports (module vs script)
-try:
-    from .config_utils import load_or_create_config
-    from .venv_utils import create_virtualenv, upgrade_pip, install_requirements, create_env_info
-    from .file_utils import create_requirements_file, create_app_file
-    from .vscode_utils import create_vscode_files
-    from .ci_utils import ensure_github_actions_workflow
-    from .gitignore_utils import create_gitignore
-    from .license_utils import create_license
-except ImportError:
-    from config_utils import load_or_create_config
-    from venv_utils import create_virtualenv, upgrade_pip, install_requirements, create_env_info
-    from file_utils import create_requirements_file, create_app_file
-    from vscode_utils import create_vscode_files
-    from ci_utils import ensure_github_actions_workflow
-    from gitignore_utils import create_gitignore
-    from license_utils import create_license
+from .ci_utils import ensure_github_actions_workflow
+from .file_utils import create_app_file, create_requirements_file
+from .gitignore_utils import create_gitignore
+from .license_utils import create_license
+from .venv_utils import (
+    create_env_info,
+    create_virtualenv,
+    install_requirements,
+    upgrade_pip,
+)
+from .vscode_utils import create_vscode_files
 
 
-def resolve_root(args: argparse.Namespace) -> Path:
+
+def build_parser():
+    """Create and configure the top-level argument parser.
+
+    Returns:
+        argparse.ArgumentParser: Configured parser for the ``reposmith`` CLI.
+
+    Notes:
+        The parser defines a single ``init`` subcommand that bootstraps a new
+        project directory with optional components such as a virtual
+        environment, VS Code configuration, GitHub Actions workflow, and
+        licensing files.
     """
-    Resolve the target project root.
-    --root: absolute OR relative to this file's folder.
-    --up: go up N directories from this file's folder.
-    default: current working directory.
+
+    parser = argparse.ArgumentParser(
+        prog="reposmith",
+        description=(
+            "RepoSmith: Bootstrap Python projects (zero deps)"
+        ),
+    )
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    sc = sub.add_parser("init", help="Initialize a new project")
+    sc.add_argument(
+        "--root",
+        type=Path,
+        default=Path.cwd(),
+        help="Target project folder",
+    )
+    sc.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing files",
+    )
+    sc.add_argument(
+        "--no-venv",
+        action="store_true",
+        help="Skip virtualenv creation",
+    )
+    sc.add_argument(
+        "--entry",
+        default="main.py",
+        help="Entry filename (default: main.py)",
+    )
+    sc.add_argument(
+        "--with-license",
+        action="store_true",
+        help="Create LICENSE file",
+    )
+    sc.add_argument(
+        "--with-gitignore",
+        action="store_true",
+        help="Create .gitignore file",
+    )
+    sc.add_argument(
+        "--with-vscode",
+        action="store_true",
+        help="Create VSCode files",
+    )
+    sc.add_argument(
+        "--with-ci",
+        action="store_true",
+        help="Create GitHub Actions workflow",
+    )
+    sc.add_argument(
+        "--ci-python",
+        default="3.12",
+        help="Python version for CI",
+    )
+    sc.add_argument(
+        "--author",
+        default="Your Name",
+        help="Author for LICENSE",
+    )
+    sc.add_argument(
+        "--year",
+        type=int,
+        help="Year for LICENSE (defaults to current year)",
+    )
+    return parser
+
+
+
+def main(argv=None):
+    """Execute the ``reposmith`` CLI.
+
+    Args:
+        argv (list[str] | None): Optional list of command-line arguments.
+            If ``None``, arguments are read from ``sys.argv``.
+
+    Returns:
+        None
+
+    Notes:
+        This function does not alter business logic; it orchestrates the
+        configured steps according to the provided CLI flags and options.
     """
-    if args.root:
-        r = Path(args.root)
-        return (r if r.is_absolute() else (pkg_dir / r)).resolve()
+    args = build_parser().parse_args(argv)
 
-    if args.up is not None:
-        root = pkg_dir
-        for _ in range(max(0, args.up)):
-            root = root.parent
-        return root.resolve()
+    if args.cmd == "init":
+        root = args.root
+        root.mkdir(parents=True, exist_ok=True)
+        print(f"Target project root: {root}")
 
-    return Path(os.getcwd()).resolve()
+        # Paths
+        venv_dir = root / ".venv"
+        reqs = root / "requirements.txt"
+        main_file = root / args.entry
+
+        # 1) Create requirements.txt first (before installation)
+        req_state = create_requirements_file(reqs, force=args.force)
+        print(f"[requirements] {req_state}: {reqs}")
+
+        # 2) Virtual environment + install (optional)
+        if not args.no_venv:
+            venv_state = create_virtualenv(venv_dir)
+            print(f"[venv] {venv_state}: {venv_dir}")
+
+            if not args.force:
+                pip_state = upgrade_pip(venv_dir)
+                print(f"[pip] {pip_state}")
+
+            reqs_state = install_requirements(venv_dir, reqs)
+            print(f"[install] {reqs_state}: {reqs}")
+
+            env_state = create_env_info(venv_dir)
+            print(f"[env-info] {env_state}")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Project setup and CI generator (with gitignore/license)")
-    parser.add_argument("--ci", choices=["skip", "create", "force"], default="skip")
-    parser.add_argument("--ci-python", default="3.12")
-    parser.add_argument("--root", help="Target project root (absolute or relative to THIS file)")
-    parser.add_argument("--up", type=int, help="Go up N directories from THIS file's folder")
-    parser.add_argument("--gitignore", default="python", help="Preset for .gitignore (python|node|django)")
 
-    parser.add_argument(
-        "--license",
-        dest="license_type",
-        choices=["MIT"],
-        default="MIT",
-        help="License type (MIT only)",
-    )
+        # 3) Create the entry file (supports --force with .bak backup)
+        entry_state = create_app_file(main_file, force=args.force)
+        print(f"[entry] {entry_state}: {main_file}")       
 
-    parser.add_argument("--no-pip-upgrade", action="store_true",
-                        help="Skip upgrading pip inside the virtual environment")
+        # 4) Optional extras
+        if args.with_vscode:
+            create_vscode_files(
+                root,
+                venv_dir,
+                main_file=str(main_file),
+                force=args.force,
+            )
 
-    parser.add_argument("--author", default="Your Name", help="Author name for LICENSE")
-    parser.add_argument("--year", type=int, help="Year for LICENSE header (defaults to current year)")
+        if args.with_gitignore:
+            create_gitignore(root, preset="python", force=args.force)
 
-    args = parser.parse_args()
+        if args.with_license:
+            year = args.year or datetime.now().year
+            create_license(
+                root,
+                license_type="MIT",
+                author=args.author,
+                year=year,
+                force=args.force,
+            )
 
-    root_dir = resolve_root(args)
-    print(f"Target project root: {root_dir}")
-    if not root_dir.exists():
-        print(f"Creating target directory: {root_dir}")
-        root_dir.mkdir(parents=True, exist_ok=True)
+        if args.with_ci:
+            state = ensure_github_actions_workflow(
+                root,
+                py=args.ci_python,
+                program=args.entry,
+                force=args.force,
+            )
+            print(
+                f"[ci] {state}: "
+                f"{root / '.github' / 'workflows' / 'test-main.yml'}"
+            )
 
-    print("\nStarting project setup...\n" + "-" * 40)
-
-    # NOTE: make sure load_or_create_config accepts a root path (Path)
-    config = load_or_create_config(root_dir)
-
-    # CI setup (optional)
-    if args.ci in ("create", "force"):
-        entry_point = config.get("entry_point")
-        main_file_name = config.get("main_file", "app.py")
-
-        program_to_run = entry_point or main_file_name  # file name, not absolute path
-        picked = "entry_point" if entry_point else "main_file"
-        print(f"[ci] Using {picked}: {program_to_run}")
-
-        if entry_point and not (root_dir / entry_point).exists():
-            print(f"[ci] Warning: entry_point '{entry_point}' not found on disk; falling back to '{main_file_name}'.")
-            program_to_run = main_file_name
-
-        status = ensure_github_actions_workflow(
-            root_dir,
-            py=args.ci_python,
-            program=program_to_run,
-            force=(args.ci == "force"),
-        )
-        print(f"[ci] {status}: {root_dir / '.github' / 'workflows' / 'test-main.yml'}")
-
-    # Paths (keep as Path; convert to str only inside functions if needed)
-    venv_dir = root_dir / config["venv_dir"]
-    requirements_path = root_dir / config["requirements_file"]
-    main_file_path = root_dir / config["main_file"]
-
-    # 1) venv + requirements
-    create_virtualenv(venv_dir)
-    create_requirements_file(requirements_path)
-
-    # 2) pip upgrade (unless skipped)
-    if not args.no_pip_upgrade:
-        upgrade_pip(venv_dir)
-    else:
-        print("[5] Skipping pip upgrade (per --no-pip-upgrade)")
-
-    # 3) install deps + env info
-    install_requirements(venv_dir, requirements_path)
-    create_env_info(venv_dir)
-
-    # 4) app + vscode
-    create_app_file(main_file_path)
-    create_vscode_files(root_dir, venv_dir, main_file=str(main_file_path))
-
-    # 5) gitignore + license
-    year = args.year if args.year else datetime.now().year
-    create_gitignore(root_dir, preset=args.gitignore)
-    create_license(root_dir, license_type=args.license_type, author=args.author, year=year)
-
-    print(
-        "\nSummary:\n"
-        f"- venv: {venv_dir}\n"
-        f"- requirements: {requirements_path}\n"
-        f"- main: {main_file_path}\n"
-        f"- gitignore preset: {args.gitignore}\n"
-        f"- license: {args.license_type} ({year})"
-    )
-
-    print("\nProject setup complete.")
+        print("Project setup complete.")
 
 
 if __name__ == "__main__":

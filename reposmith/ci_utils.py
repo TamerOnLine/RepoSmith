@@ -1,6 +1,12 @@
 # reposmith/ci_utils.py
-from pathlib import Path
+
+from __future__ import annotations
+
 import textwrap
+from pathlib import Path
+
+from .core.fs import write_file
+
 
 def ensure_github_actions_workflow(
     root_dir: Path,
@@ -9,26 +15,41 @@ def ensure_github_actions_workflow(
     py: str = "3.12",
     program: str = "app.py",
     force: bool = False,
-    backup: bool = True,
 ) -> str:
-    base = Path(root_dir)
-    wf_path = base / path
+    """Generate a simple GitHub Actions workflow file.
+
+    This function creates a minimal GitHub Actions CI workflow file that runs a
+    Python program in a specified environment. It avoids overwriting existing files
+    unless explicitly allowed.
+
+    Args:
+        root_dir (Path): The root directory where the workflow will be created.
+        path (str, optional): The relative path for the workflow file.
+            Defaults to ".github/workflows/test-main.yml".
+        py (str, optional): The Python version to use in the workflow.
+            Defaults to "3.12".
+        program (str, optional): The program to run in the workflow.
+            Defaults to "app.py".
+        force (bool, optional): If True, overwrite the workflow file if it exists.
+            A backup with `.bak` extension is created. Defaults to False.
+
+    Returns:
+        str: The state of the operation:
+            - "written" if the file was successfully created or replaced.
+            - "exists" if the file already existed and was not overwritten.
+
+    Notes:
+        - Atomic write is ensured.
+        - A `.bak` file is created when replacing an existing workflow file.
+    """
+    wf_path = Path(root_dir) / path
     wf_path.parent.mkdir(parents=True, exist_ok=True)
-
-    if wf_path.exists() and not force:
-        return "exists"
-
-    if wf_path.exists() and backup:
-        bak = wf_path.with_suffix(wf_path.suffix + ".bak")
-        bak.write_text(wf_path.read_text(encoding="utf-8"), encoding="utf-8")
 
     yml = textwrap.dedent(f"""
     name: Test {program}
-
     on: [push, pull_request]
-
     jobs:
-      run-script:
+      run:
         runs-on: ubuntu-latest
         steps:
           - name: Checkout repository
@@ -39,30 +60,13 @@ def ensure_github_actions_workflow(
             with:
               python-version: "{py}"
 
-          - name: Cache pip
-            uses: actions/cache@v4
-            with:
-              path: ~/.cache/pip
-              key: ${{{{ runner.os }}}}-pip-${{{{ hashFiles('**/requirements.txt') }}}}
-              restore-keys: |
-                ${{{{ runner.os }}}}-pip-
-
-          - name: Install requirements
+          - name: Install dependencies
             run: |
-              python -m pip install --upgrade pip
-              if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+              if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
 
           - name: Run {program}
-            run: |
-              if [ -f "{program}" ]; then
-                echo "Running file: {program}"
-                python "{program}"
-              else
-                echo "Program file not found. Running module fallback..."
-                python -m reposmith.main --ci skip
-                python -c "import reposmith; print('import ok')"
-              fi
-    """)
+            run: python "{program}"
+    """).lstrip()
 
-    wf_path.write_text(yml.strip() + "\n", encoding="utf-8")
-    return "overwritten" if force else "created"
+    state = write_file(wf_path, yml, force=force, backup=True)
+    return state

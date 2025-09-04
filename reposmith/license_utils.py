@@ -1,6 +1,7 @@
-# reposmith/license_utils.py
 from pathlib import Path
 from datetime import datetime
+
+from .core.fs import write_file
 
 MIT = """MIT License
 
@@ -25,14 +26,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-def create_license(root_dir, license_type: str = "MIT", author: str = "Your Name", year: int | None = None) -> None:
+def create_license(
+    root_dir,
+    license_type: str = "MIT",
+    author: str = "Your Name",
+    year: int | None = None,
+    *,
+    force: bool = False
+) -> None:
+    """
+    Create a LICENSE file safely using the specified license type.
 
+    Args:
+        root_dir: The root directory where the LICENSE file will be created.
+        license_type (str): The type of license to use. Currently only 'MIT' is supported.
+        author (str): The author name to include in the license.
+        year (int | None): The year to include in the license. Defaults to the current year.
+        force (bool): If True, overwrite the LICENSE file if it exists.
+
+    Raises:
+        ValueError: If an unsupported license type is specified.
+
+    Notes:
+        - Does not overwrite existing LICENSE unless force=True.
+        - Creates a .bak backup if the file is replaced.
+        - Uses atomic write operation for file safety.
+    """
     print("\n[10] Checking LICENSE")
     path = Path(root_dir) / "LICENSE"
-    if path.exists():
-        print("LICENSE already exists.")
-        return
+
     year = year or datetime.now().year
-    content = MIT.format(year=year, author=author)
-    path.write_text(content, encoding="utf-8")
-    print(f"LICENSE created: MIT for {author} ({year})")
+    if license_type.upper() == "MIT":
+        content = MIT.format(year=year, author=author)
+    else:
+        raise ValueError(f"Unsupported license type: {license_type}")
+
+    state = write_file(path, content, force=force, backup=True)
+
+    if state == "exists":
+        print("LICENSE already exists. Use --force to overwrite.")
+    elif state == "written":
+        print(f"LICENSE created/updated: {license_type} for {author} ({year})")
