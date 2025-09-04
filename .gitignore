@@ -143,7 +143,6 @@ celerybeat.pid
 # 🔐 Private / Config Files
 # =========================
 .pypirc
-*.code-workspace
 
 # =========================
 # 🧾 user-specific files

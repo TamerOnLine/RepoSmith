@@ -2,7 +2,7 @@ import os
 import json
 from pathlib import Path
 
-def create_vscode_files(root_dir: Path, venv_dir: str) -> None:
+def create_vscode_files(root_dir: Path, venv_dir: str, main_file: str = "app.py") -> None:
     print("\n[8] Creating VS Code files: settings, launch, workspace")
 
     ws_dir = Path(root_dir)
@@ -19,6 +19,7 @@ def create_vscode_files(root_dir: Path, venv_dir: str) -> None:
         else os.path.join(venv_dir, "bin", "python")
     )
 
+    # settings.json
     settings = {
         "python.defaultInterpreterPath": interp,
         "python.terminal.activateEnvironment": True,
@@ -28,14 +29,16 @@ def create_vscode_files(root_dir: Path, venv_dir: str) -> None:
     with open(settings_path, "w", encoding="utf-8") as f:
         json.dump(settings, f, indent=2)
 
+    from pathlib import Path as _P
+    _main_name = _P(main_file).name
     launch = {
         "version": "0.2.0",
         "configurations": [
             {
-                "name": "Run app.py",
+                "name": f"Run {_main_name}",
                 "type": "debugpy",
                 "request": "launch",
-                "program": "${workspaceFolder}/app.py",
+                "program": f"${{workspaceFolder}}/{_main_name}",
                 "cwd": "${workspaceFolder}",
                 "console": "integratedTerminal",
                 "justMyCode": True,
@@ -46,6 +49,7 @@ def create_vscode_files(root_dir: Path, venv_dir: str) -> None:
     with open(launch_path, "w", encoding="utf-8") as f:
         json.dump(launch, f, indent=2)
 
+    # project.code-workspace
     workspace = {
         "folders": [{"path": "."}],
         "settings": {"python.defaultInterpreterPath": interp},

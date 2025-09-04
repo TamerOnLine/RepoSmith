@@ -9,7 +9,7 @@ def load_or_create_config(root_dir: Path):
         default_config = {
             "project_name": Path(root_dir).name,
             "main_file": "app.py",
-            "entry_point": "main.py",
+            "entry_point": None,
             "requirements_file": "requirements.txt",
             "venv_dir": ".venv",
             "python_version": "3.12",
