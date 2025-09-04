@@ -1,96 +1,92 @@
 # ⚡ RepoSmith 
+
 [![PyPI version](https://img.shields.io/pypi/v/reposmith-tol?style=flat-square)](https://pypi.org/project/reposmith-tol/)
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg?style=flat-square)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
 [![Sponsor](https://img.shields.io/badge/Sponsor-💖-pink?style=flat-square)](https://github.com/sponsors/liebemama)
 
-**RepoSmith** is a **lightweight & portable CLI tool** that helps you **bootstrap new Python projects instantly** 🚀.  
-With one command, you get a ready-to-code environment including virtualenv, config files, VS Code setup, `.gitignore`, and license.
+**RepoSmith** is a **portable Python project bootstrapper** — a zero-dependency CLI & library that helps you spin up new projects instantly.  
+With one command, you get a ready-to-code environment: virtualenv, config files, VS Code setup, `.gitignore`, LICENSE, and optional CI.
 
 ---
 
 ## ✨ Features
-- 🚀 Quick project setup with a single command
-- 🐍 Python ≥ 3.12 support
-- 📦 Automatic virtual environment creation (`.venv`)
-- 📂 Generates essential files:
-  - `setup-config.json`, `requirements.txt`, `app.py`
-  - `.vscode/` (settings + launch config)
-  - `.gitignore`, `LICENSE`
-- ⚙️ Preconfigured GitHub Actions workflow
-- 🛡️ Built-in MIT license template
+- 🚀 **Zero dependencies** — built only with Python stdlib
+- ⚙️ **Virtual environment** auto-created (`.venv`)
+- 📦 **requirements.txt** scaffolded (empty but ready)
+- 📝 **Entry file** (`main.py` or `run.py`) with a welcome message
+- 🛡 **LICENSE** (MIT by default, more soon)
+- 🙈 **.gitignore** presets (Python, Node, Django…)
+- 💻 **VS Code config** (`settings.json`, `launch.json`, workspace)
+- 🔄 **GitHub Actions** workflow (`.github/workflows/test-main.yml`)
+- 🔧 Idempotent: runs safely again without overwriting unless `--force`
 
 ---
 
 ## ⚡ Quick Start
+
+### Option 1 — run via Python module (always works)
 ```powershell
 cd MyProject
-py -m reposmith.main
+py -m reposmith.main init --entry run.py --with-vscode --with-ci
 ```
 
-This will:
+### Option 2 — run via CLI (if Scripts folder is on PATH)
+```powershell
+reposmith init --entry run.py --with-vscode --with-ci
+```
+
+Both commands will:
 - create `.venv/`
-- add `requirements.txt`, `app.py`, `.gitignore`, `LICENSE`, `.vscode/`
-- configure everything automatically with defaults.
-
-👉 Optional flags:
-- `--ci create` → add GitHub Actions workflow
-- `--author "YourName"` → set your name in LICENSE
-
----
-
-## 📦 Installation
-
-### From PyPI
-```bash
-pip install reposmith-tol
-```
-
-### From Source
-```bash
-git clone https://github.com/liebemama/RepoSmith.git
-cd RepoSmith
-pip install -e .
-```
+- add `requirements.txt`, `run.py`, `.gitignore`, `LICENSE`, `.vscode/`
+- configure everything automatically with defaults
 
 ---
 
 ## 🚀 Usage
 
-### CLI
-```bash
-# Create new project structure in current folder
-reposmith --ci create --gitignore python --author "Tamer"
+Basic:
+```powershell
+reposmith init --entry main.py
 ```
 
-### Example
-```bash
-cd MyNewProject
-reposmith --ci create --gitignore django --license MIT --author "Tamer"
+With extras:
+```powershell
+reposmith init --entry run.py --with-ci --with-gitignore --with-license --with-vscode --author "YourName"
+```
+
+Flags:
+- `--force` → overwrite existing files (with `.bak` backup)
+- `--no-venv` → skip creating `.venv`
+- `--with-license` → add LICENSE (MIT)
+- `--with-gitignore` → add .gitignore (Python preset by default)
+- `--with-vscode` → add VS Code config
+- `--with-ci` → add GitHub Actions workflow
+- `--author` / `--year` → customize LICENSE metadata
+- `--ci-python` → set Python version for CI (default: 3.12)
+
+---
+
+## 📦 Installation
+```powershell
+py -m pip install --upgrade reposmith-tol
+```
+
+If PATH not configured, use:
+```powershell
+py -m reposmith.main init --entry run.py
 ```
 
 ---
 
-## 🧩 Library API
-```python
-from reposmith.venv_utils import create_virtualenv, upgrade_pip, install_requirements
-
-venv_dir = "./.venv"
-req_file = "./requirements.txt"
-
-create_virtualenv(venv_dir)
-upgrade_pip(venv_dir)
-install_requirements(venv_dir, req_file)
+## 🧪 Development
+Run tests:
+```powershell
+python -m unittest discover -s tests -v
 ```
 
 ---
 
-## 🛡️ License
+## 🛡 License
 This project is licensed under the [MIT License](LICENSE).  
 © 2025 TamerOnLine
-
----
-
-## 💖 Support this project
-If you find **RepoSmith** useful, consider supporting its development:  
-👉 [Sponsor us on GitHub](https://github.com/sponsors/liebemama)
