@@ -1,46 +1,118 @@
-# 🤝 Contributing to RepoSmith | المساهمة في مشروع RepoSmith
+# 🤝 Contributing to RepoSmith
 
-شكراً لاهتمامك بالمساهمة! 🚀  
-RepoSmith هو مشروع مفتوح المصدر (Python CLI) يساعدك على إنشاء مشاريع جديدة بسرعة.  
-هذا المستند يشرح كيف تجهّز بيئة التطوير، وكيفية كتابة الكود، وإرسال مساهماتك.
+Thank you for your interest in contributing! 🚀  
+RepoSmith is an open-source Python CLI for bootstrapping projects quickly.  
+This document explains how to set up your environment, follow coding style, and submit contributions.
 
 ---
 
-## 🛠️ Development Setup | إعداد بيئة التطوير
+## 🛠️ Development Setup
 
-1. **Clone the repo | استنسخ المستودع**
+1. **Clone the repository**
    ```bash
    git clone https://github.com/liebemama/RepoSmith.git
    cd RepoSmith
    ```
 
-2. **Create a virtual environment | أنشئ بيئة افتراضية**
+2. **Create a virtual environment**
    ```bash
    python -m venv .venv
    source .venv/bin/activate   # Linux/Mac
    .venv\Scripts\activate      # Windows
    ```
 
-3. **Install requirements (dev) | ثبّت المتطلبات**
+3. **Install requirements (dev)**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Run tests | شغّل الاختبارات**
+4. **Run tests**
    ```bash
    python -m unittest discover -s tests -v
    ```
 
 ---
 
-## 📏 Code Style | أسلوب كتابة الكود
+## 🧑‍💻 Local Development Usage
 
-- Use **PEP8** for formatting. | استخدم معايير **PEP8** للتنسيق.
-- Keep functions small with clear docstrings. | اجعل الدوال قصيرة وبها توثيق واضح.
-- Use **atomic writes + backups** when writing files. | استخدم أسلوب الكتابة الآمنة مع النسخ الاحتياطي.
-- Add type hints where possible. | أضف تلميحات الأنواع إن أمكن.
+When working on RepoSmith, you don’t need to install it from PyPI.  
+You can run it **directly from source**:
 
-Recommended tools | أدوات مقترحة:
+```bash
+py -m reposmith.main init --no-venv --entry run.py --with-gitignore --with-license
+```
+
+This executes the CLI from your **local code** instead of the published package.  
+It’s useful for testing changes before publishing.
+
+If imports fail, prepend your `PYTHONPATH` with the project root:
+
+```bash
+# Linux/Mac
+export PYTHONPATH="$(pwd):$PYTHONPATH"
+
+# Windows PowerShell
+$env:PYTHONPATH = (Get-Location).Path + ';' + $env:PYTHONPATH
+```
+
+---
+
+## 🧷 Try RepoSmith with Editable Install (`pip install -e .`)
+
+If you want RepoSmith to behave like an installed package while still reflecting your local changes, use **editable mode**:
+
+```bash
+# Install in editable mode
+pip install -e .
+
+# Now you can run the CLI directly
+reposmith init --no-venv --entry run.py --with-ci
+```
+
+- Any changes you make in `reposmith/` will take effect immediately.  
+- This is the recommended way to test updates during development.  
+- To uninstall:
+  ```bash
+  pip uninstall -y reposmith-tol
+  ```
+
+💡 If the `reposmith` command is not on PATH, you can always run:
+```bash
+py -m reposmith.main init --no-venv --entry run.py
+```
+
+---
+
+## 📦 Build & Install Locally
+
+1. **Clean and build the package**
+   ```bash
+   python -m build
+   # Outputs dist/*.tar.gz and dist/*.whl
+   ```
+
+2. **Install the built package locally**
+   ```bash
+   pip install --force-reinstall dist/*.whl
+   ```
+
+3. **Quick verification**
+   ```bash
+   reposmith --help
+   reposmith init --no-venv --entry run.py
+   ```
+
+---
+
+## 📏 Code Style
+
+- Follow **PEP8** formatting.
+- Keep functions small with clear docstrings.
+- Use **atomic writes + backups** for file operations (`reposmith/core/fs.py`).
+- Add type hints where possible.
+
+Recommended tools:
+
 ```bash
 pip install black ruff
 black reposmith/ tests/
@@ -49,47 +121,63 @@ ruff check reposmith/ tests/
 
 ---
 
-## 🧪 Tests | الاختبارات
+## 🧪 Tests
 
-- All new features must include unit tests. | كل ميزة جديدة يجب أن يكون لها اختبارات.
-- Run tests locally before submitting. | شغّل الاختبارات محليًا قبل إرسال التعديلات.
-- CI (GitHub Actions) runs automatically. | نظام CI يعمل تلقائيًا لكل Pull Request.
+- All new features must include unit tests under `tests/`.
+- Run tests locally before submitting a Pull Request.
+- CI (GitHub Actions) will run automatically on each PR.
+
+```bash
+python -m unittest discover -s tests -v
+```
 
 ---
 
-## 🔄 Submitting Changes | إرسال التغييرات
+## 🔄 Submitting Changes
 
-1. **Fork and branch | أنشئ Fork وفرع جديد**
+1. **Fork the repository and create a branch**
    ```bash
    git checkout -b feature/my-new-feature
    ```
 
-2. **Commit with clear message | احفظ التغييرات برسالة واضحة**
+2. **Commit your changes with a clear message**
    ```bash
    git commit -m "Add: support for --with-django gitignore preset"
    ```
 
-3. **Push to your fork | ارفع التغييرات إلى Fork الخاص بك**
+3. **Push to your fork**
    ```bash
    git push origin feature/my-new-feature
    ```
 
-4. **Open Pull Request | افتح طلب دمج (PR) إلى الفرع main**
+4. **Open a Pull Request** to the `main` branch.
 
 ---
 
-## 💡 Feature Requests & Issues | طلبات الميزات والمشاكل
+## 💡 Feature Requests & Issues
 
-- Use GitHub Issues for bugs/features. | استخدم GitHub Issues للإبلاغ عن الأخطاء أو اقتراح الميزات.
-- Provide steps to reproduce bugs. | اذكر خطوات إعادة إنتاج الخطأ.
-
----
-
-## 📜 License | الرخصة
-
-By contributing, you agree that your code will be licensed under the [MIT License](LICENSE).  
-بالمساهمة، فأنت توافق أن يكون كودك مرخّص تحت [رخصة MIT](LICENSE).
+- Use [GitHub Issues](https://github.com/liebemama/RepoSmith/issues) to report bugs or request features.  
+- Provide reproduction steps or expected behavior for clarity.
 
 ---
 
-💖 Thanks for making RepoSmith better! | شكراً لمساعدتك في تحسين RepoSmith!
+## 🧰 Troubleshooting
+
+- **Imports use installed package instead of local code:**  
+  Run `pip uninstall -y reposmith-tol` and set `PYTHONPATH` to your repo root.
+
+- **CLI command not found:**  
+  Use `py -m reposmith.main ...` instead of `reposmith ...`.
+
+- **Build fails due to metadata:**  
+  Check `pyproject.toml` fields (`license`, `license-files`, `project.urls`).
+
+---
+
+## 📜 License
+
+By contributing, you agree that your code will be licensed under the [MIT License](LICENSE).
+
+---
+
+💖 Thanks for making RepoSmith better!
