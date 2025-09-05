@@ -89,6 +89,15 @@ python -m unittest discover -s tests -v
 
 ---
 
+## 🗺️ Roadmap
+
+
+
+🔗 [Follow the project progress on GitHub Projects](https://github.com/liebemama/RepoSmith/projects/1)
+
+---
+
+
 ## 🛡 License
 This project is licensed under the [MIT License](https://github.com/liebemama/RepoSmith/blob/main/LICENSE).  
 © 2025 TamerOnLine
