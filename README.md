@@ -5,9 +5,6 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](https://github.com/liebemama/RepoSmith/blob/main/LICENSE)
 ![Run tests](https://github.com/TamerOnLine/RepoSmith/actions/workflows/test-main.yml/badge.svg?branch=main)
 [![CI](https://github.com/TamerOnLine/RepoSmith/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/TamerOnLine/RepoSmith/actions/workflows/ci.yml)
-
-Portable CLI tool for bootstrapping Python projects.
-
 [![Sponsor](https://img.shields.io/badge/Sponsor-💖-pink?style=flat-square)](https://github.com/sponsors/liebemama)
 
 
