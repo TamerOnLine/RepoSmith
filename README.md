@@ -93,7 +93,8 @@ python -m unittest discover -s tests -v
 
 
 
-🔗 [Follow the project progress on GitHub Projects](https://github.com/liebemama/RepoSmith/projects/1)
+🔗 [Follow the project progress on GitHub Projects](https://github.com/orgs/liebemama/projects/2)
+
 
 ---
 
