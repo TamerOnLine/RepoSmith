@@ -1,5 +1,6 @@
 from .core.fs import write_file
 from pathlib import Path
+from typing import Union
 
 PYTHON_GITIGNORE = """# =========================
 # 🧠 Python: Bytecode, Caches, Compiled Files
@@ -17,6 +18,7 @@ cython_debug/
 # ⚙️ Virtual Environments
 # =========================
 .env
+.env.*
 .venv
 env/
 venv/
@@ -60,17 +62,22 @@ pip-delete-this-directory.txt
 # 🧪 Testing / Coverage
 # =========================
 htmlcov/
-.tox/
-.nox/
 .coverage
 .coverage.*
-.cache
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pytype/
+.pyre/
+.dmypy.json
+.tox/
+.nox/
 nosetests.xml
 coverage.xml
+coverage/
 *.cover
 *.py,cover
 .hypothesis/
-.pytest_cache/
 
 # =========================
 # 🌍 Translations
@@ -96,12 +103,7 @@ docs/_build/
 .site
 .pybuilder/
 target/
-.mypy_cache/
-.dmypy.json
 dmypy.json
-.pytype/
-.pyre/
-.ruff_cache/
 
 # =========================
 # 🧪 IDE / Editor Configs
@@ -159,6 +161,12 @@ venv_switcher.py
 summary_tree.txt
 Dev_requirements.txt
 *.exe
+*.bak
+*.orig
+*.rej
+*.swp
+*.tmp
+*.tmp.*
 
 # Local cache from the app
 .cache/
@@ -179,6 +187,9 @@ yarn-error.log*
 .pnpm-store/
 dist/
 build/
+# Env files
+.env
+.env.*
 # IDE
 .vscode/
 .idea/
@@ -196,49 +207,34 @@ media/
 staticfiles/
 """
 
-PRESETS = {
+PRESETS: dict[str, str] = {
     "python": PYTHON_GITIGNORE,
     "node": NODE_GITIGNORE,
     "django": DJANGO_GITIGNORE,
 }
 
-from pathlib import Path
-
-
-def create_gitignore(root_dir, preset: str = "python", *, force: bool = False) -> str:
+def create_gitignore(root_dir: Union[str, Path], preset: str = "python", *, force: bool = False) -> str:
     """
     Create or update a .gitignore file safely.
 
-    This function writes a .gitignore file in the given root directory
-    based on predefined presets. It will not overwrite an existing file
-    unless `force=True` is specified. If overwriting occurs, a backup
-    (`.bak`) file is created automatically. The writing process is
-    performed atomically to prevent data corruption.
-
     Args:
-        root_dir (str or Path): The target directory where the .gitignore
-            file should be created.
-        preset (str, optional): The preset to use for the .gitignore
-            content. Defaults to "python".
-        force (bool, optional): If True, overwrite the existing file.
-            Defaults to False.
+        root_dir: Target directory (str or Path).
+        preset: One of PRESETS keys ("python", "node", "django").
+        force: Overwrite if exists (creates .bak).
 
     Returns:
-        str: A status string describing the result. Possible values include:
-            - "exists": The file already exists and was not overwritten.
-            - Other states as defined by `write_file`.
-
-    Notes:
-        - Requires `PRESETS`, `PYTHON_GITIGNORE`, and `write_file` to be
-          defined in the surrounding scope.
+        str: "written" | "exists" (from write_file).
     """
     path = Path(root_dir) / ".gitignore"
-    content = PRESETS.get(preset.lower(), PYTHON_GITIGNORE)
+    key = preset.lower().strip()
+    if key not in PRESETS:
+        print(f"[gitignore] Unknown preset '{preset}', falling back to 'python'. Available: {', '.join(PRESETS)}")
+        key = "python"
+    content = PRESETS[key]
 
     state = write_file(path, content, force=force, backup=True)
     if state == "exists":
         print(".gitignore already exists. Use --force to overwrite.")
     else:
-        print(f".gitignore created/updated with preset: {preset}")
+        print(f".gitignore created/updated with preset: {key}")
     return state
-
