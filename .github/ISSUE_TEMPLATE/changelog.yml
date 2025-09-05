@@ -1,0 +1,35 @@
+name: 📦 Changelog Entry
+description: استخدم هذا القالب لتوثيق تغييرات مرتبطة بالإصدار.
+title: "[x.y.z] <Type>: "
+labels: [changelog]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: رقم الإصدار (مثال: 0.2.7)
+      placeholder: "x.y.z"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      options:
+        - Added
+        - Changed
+        - Fixed
+        - Removed
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: صف التغيير أو الميزة
+      placeholder: |
+        - تفاصيل التغيير هنا
+    validations:
+      required: true
