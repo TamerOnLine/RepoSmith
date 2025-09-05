@@ -16,6 +16,7 @@ body:
     id: type
     attributes:
       label: Type
+      description: اختر نوع التغيير
       options:
         - Added
         - Changed
