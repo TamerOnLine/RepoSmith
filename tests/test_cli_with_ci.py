@@ -32,7 +32,7 @@ class TestCLISmokeWithCI(unittest.TestCase):
             "--ci-python", "3.13"
         ])
 
-        wf = self.root / ".github" / "workflows" / "test-main.yml"
+        wf = self.root / ".github" / "workflows" / "ci.yml"
         self.assertTrue(wf.exists(), "Workflow file was not created")
 
         yml = wf.read_text(encoding="utf-8")
@@ -44,3 +44,4 @@ class TestCLISmokeWithCI(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+

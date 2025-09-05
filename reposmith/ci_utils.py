@@ -6,7 +6,7 @@ from .core.fs import write_file
 
 def ensure_github_actions_workflow(
     root_dir: Path,
-    path: str = ".github/workflows/test-main.yml",
+    path: str = ".github/workflows/ci.yml",
     *,
     py: str = "3.12",
     program: str = "app.py",  # للإبقاء على التوافق الخلفي فقط (غير مستخدم الآن)
@@ -48,3 +48,4 @@ def ensure_github_actions_workflow(
     """).lstrip()
 
     return write_file(wf_path, yml, force=force, backup=True)
+

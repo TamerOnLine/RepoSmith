@@ -187,7 +187,7 @@ def main(argv=None):
             )
             print(
                 f"[ci] {state}: "
-                f"{root / '.github' / 'workflows' / 'test-main.yml'}"
+                f"{root / '.github' / 'workflows' / 'ci.yml'}"
             )
 
         print("Project setup complete.")
@@ -195,3 +195,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     main()
+

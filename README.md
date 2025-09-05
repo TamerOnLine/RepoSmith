@@ -21,7 +21,7 @@ With one command, you get a ready-to-code environment: virtualenv, config files,
 - 🛡 **LICENSE** (MIT by default, more soon)
 - 🙈 **.gitignore** presets (Python, Node, Django…)
 - 💻 **VS Code config** (`settings.json`, `launch.json`, workspace)
-- 🔄 **GitHub Actions** workflow (`.github/workflows/test-main.yml`)
+- 🔄 **GitHub Actions** workflow (`.github/workflows/ci.yml`)
 - 🔧 Idempotent: runs safely again without overwriting unless `--force`
 
 ---
@@ -112,3 +112,5 @@ This project is licensed under the [MIT License](https://github.com/liebemama/Re
 - 💡 **Feature Requests:** [GitHub Issues](https://github.com/liebemama/RepoSmith/issues) (اختر نوع *Feature Request*)  
 - 💖 **Sponsor:** [GitHub Sponsors](https://github.com/sponsors/liebemama)  
 - 📧 **Contact:** (info@tameronline.com)
+
+

@@ -16,7 +16,7 @@ class TestCIUtils(unittest.TestCase):
     def test_generate_default_workflow(self):
         state = ensure_github_actions_workflow(self.root, force=False)
         self.assertEqual(state, "written")
-        p = self.root / ".github" / "workflows" / "test-main.yml"
+        p = self.root / ".github" / "workflows" / "ci.yml"
         yml = p.read_text(encoding="utf-8")
         # basic checks
         self.assertIn("actions/checkout@v4", yml)
@@ -25,7 +25,7 @@ class TestCIUtils(unittest.TestCase):
         self.assertIn("Run unit tests", yml)
 
     def test_existing_without_force(self):
-        p = self.root / ".github" / "workflows" / "test-main.yml"
+        p = self.root / ".github" / "workflows" / "ci.yml"
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text("OLD", encoding="utf-8")
         state = ensure_github_actions_workflow(self.root, force=False)
@@ -35,7 +35,7 @@ class TestCIUtils(unittest.TestCase):
 
     def test_force_overwrite_creates_backup_and_applies_customs(self):
         # seed old file
-        p = self.root / ".github" / "workflows" / "test-main.yml"
+        p = self.root / ".github" / "workflows" / "ci.yml"
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text("v1", encoding="utf-8")
 
@@ -58,3 +58,4 @@ class TestCIUtils(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
