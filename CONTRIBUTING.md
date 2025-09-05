@@ -176,7 +176,7 @@ python -m unittest discover -s tests -v
 
 ## 📜 License
 
-By contributing, you agree that your code will be licensed under the [MIT License](LICENSE).
+By contributing, you agree that your code will be licensed under the [License](https://img.shields.io/github/license/TamerOnLine/RepoSmith?style=flat-square)
 
 ---
 
