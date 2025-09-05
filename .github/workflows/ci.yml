@@ -4,6 +4,10 @@ on:
   push:
   pull_request:
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   test:
     name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
