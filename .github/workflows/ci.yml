@@ -38,16 +38,7 @@ jobs:
           pip install pytest pytest-cov
 
       - name: Run tests with coverage
-        run: pytest -q --cov=. --cov-report=term-missing --cov-report=xml
-
-      - name: Upload coverage to Codecov
-        if: ${{ secrets.CODECOV_TOKEN }}
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.xml
-          fail_ci_if_error: false
-
+        run: pytest -q --cov=. --cov-report=term-missing
 
   build:
     name: Build package
